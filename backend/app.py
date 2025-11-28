@@ -1,8 +1,13 @@
 from dotenv import load_dotenv 
 import json
 from openai import openai
+import os
 
 load_dotenv()
+
+client = OpenAI(api_key=os.getenv('OPENAI_API_KEY'))
+
+upload_folder = "uploads"
 
 # returns a string of the transcript of the audio using the whisper model
 # input: string of the audio file
@@ -74,6 +79,39 @@ def extract_data(transcript):
 
     except Exception as e:
         raise Exception(f"Extration error: {str(e)}")
+
+# recieves audio file, transcribes audio, extract data from transcript, return notes of patient visit
+@app.route('/process-audio', method=['POST'])
+def process_audio():
+    try: 
+        filename = secure_filename(file.filename)
+        filepath = os.path.join(upload_folder, filename)
+        file.save(filepath)
+        
+        transcirpt = transcribe_audio(filepath)
+        print(f"Transcript: {transcirpt}")
+
+        print("processing transcirpt...")
+        notes = extract_data(transcirpt)
+        print(f"Notes: {notes}")
+
+        os.remove(filepath)
+
+        return jsonify({
+            "sucess": True,
+            "transcript": trancript,
+            "notes": notes,
+        }), 200
+
+    except Exception as e: 
+        if os.path.exists(filepath):
+            os.remove(filepath)
+
+        print(f"Error processing audio: {str(e)}")
+        return jsonify({
+            "error": f"Processing failed: {str(e)}"
+        }), 500
+
 
 
     
