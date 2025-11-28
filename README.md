@@ -5,6 +5,9 @@
 
 # Scriber: 
 # To record and transcribe the audio file and fill in the required notes for the doctor post-patient visit
+# notes will be structured in a SOAP formatting 
+# reference: https://www.ncbi.nlm.nih.gov/books/NBK482263/
+# SOAP: Subjective, Objective, Assessment, Plan
 
 # Tech Stack
 # Backend: Flask, OpenAI 
@@ -15,4 +18,4 @@
 # python -m venv venv
 # mac: source venv/bin/activate 
 # windows: venv\Scripts\activate 
-# pip install requirements.txt 
+# pip install -r requirements.txt 
