@@ -1,9 +1,15 @@
 from dotenv import load_dotenv 
 import json
-from openai import openai
+from openai import OpenAI
 import os
+from flask import Flask, request, jsonify
+from flask_cors import CORS
+from werkzeug.utils import secure_filename
 
 load_dotenv()
+
+app = Flask(__name__)
+CORS(app)
 
 client = OpenAI(api_key=os.getenv('OPENAI_API_KEY'))
 
@@ -21,8 +27,8 @@ def transcribe_audio(audio_file_path):
                 response_format="text"
             )
         return transcript
-    except Expection as e:
-        raise Exception(f"Transciption error: {str(e)}")
+    except Exception as e:
+        raise Exception(f"Transcription error: {str(e)}")
 
 # using the transcript from transcribe_audio, use gpt to return a JSON of the structured doctor's notes
 # input: string of the transcript 
@@ -33,16 +39,16 @@ def extract_data(transcript):
 
     Return a JSON object with these fields: 
     - transcript: Structured dialouge between the patient and the doctor (i.e. Doctor: "...", Patient: "...", Doctor: "..." )
-    - cheif_complaint: Brief sentence of main reason for visit (i.e. Chest pain, decreased appetite, shortness of breath.) 
+    - chief_complaint: Brief sentence of main reason for visit (i.e. Chest pain, decreased appetite, shortness of breath.) 
     - history_of_present_illness: Brief sentence of patient's age, sex and reason for the visit (i.e. 47-year old female presenting with abdominal pain.)
-    - onset: When did the cheif complaint begin?
-    - location: where is the cheif complaint located?
-    - duration: How long has the cheif complaint been going on for?
-    - characterization: How does the patient describe the cheif complaint?
-    - alleviating_aggravating_factors: What makes the cheif complaint better? Worse?
-    - radiation: Does the cheif complaint move or stay in one location?
-    - temporal_factor: is the cheif complaint worse (or better) at a certain time of the day? 
-    - severity: using a scale of 1 to 10, 1 being the least, 10 being the worst, how does the patient rate the cheif complaint? 
+    - onset: When did the chief complaint begin?
+    - location: where is the chief complaint located?
+    - duration: How long has the chief complaint been going on for?
+    - characterization: How does the patient describe the chief complaint?
+    - alleviating_aggravating_factors: What makes the chief complaint better? Worse?
+    - radiation: Does the chief complaint move or stay in one location?
+    - temporal_factor: is the chief complaint worse (or better) at a certain time of the day? 
+    - severity: using a scale of 1 to 10, 1 being the least, 10 being the worst, how does the patient rate the chief complaint? 
     - history: breif description of medical, surgical, family, or social history 
     - assessment: description of problems and differential dignosis (i.e.  Problem 1, Differential Diagnoses, Discussion, Plan for problem 1 (described in the plan below). Repeat for additional problems)
     - plan: details the need for additional testing and consultation with other clinicians to address the patient's illnesses. It also addresses any additional steps being taken to treat the patient. This section helps future physicians understand what needs to be done next.
@@ -54,7 +60,7 @@ def extract_data(transcript):
     - DO NOT make any assumptions, only write the information given provided by the transcript
     """
 
-    user_prompt: f"""
+    user_prompt = f"""
     Extract all medical documentation from this transcript: {transcript}
     Return structured JSON data of a structured dialouge between the patient and the doctor 
     (
@@ -64,7 +70,7 @@ def extract_data(transcript):
     )"""
 
     try: 
-        response = client.chat.completion.create(
+        response = client.chat.completions.create(
             model="gpt-4o",
             messages=[
                 {"role": "system", "content": system_prompt},
@@ -74,32 +80,34 @@ def extract_data(transcript):
             temperature=0.3
         )
 
-        extract_data = json.loads(respose.choices[0].message.content)
-        return extract_data
+        extracted_data = json.loads(respose.choices[0].message.content)
+        return extracted_data
 
     except Exception as e:
-        raise Exception(f"Extration error: {str(e)}")
+        raise Exception(f"Extraction error: {str(e)}")
 
 # recieves audio file, transcribes audio, extract data from transcript, return notes of patient visit
-@app.route('/process-audio', method=['POST'])
+# http://127.0.0.1:5000/process-audio
+
+@app.route('/process-audio', methods=['POST'])
 def process_audio():
     try: 
         filename = secure_filename(file.filename)
         filepath = os.path.join(upload_folder, filename)
         file.save(filepath)
         
-        transcirpt = transcribe_audio(filepath)
-        print(f"Transcript: {transcirpt}")
+        transcript = transcribe_audio(filepath)
+        print(f"Transcript: {transcript}")
 
-        print("processing transcirpt...")
-        notes = extract_data(transcirpt)
+        print("processing transcript...")
+        notes = extract_data(transcript)
         print(f"Notes: {notes}")
 
         os.remove(filepath)
 
         return jsonify({
             "sucess": True,
-            "transcript": trancript,
+            "transcript": transcript,
             "notes": notes,
         }), 200
 
@@ -112,6 +120,7 @@ def process_audio():
             "error": f"Processing failed: {str(e)}"
         }), 500
 
-
+if __name__ == '__main__':
+    app.run(debug=True, host='0.0.0.0', port=5000)
 
     
