@@ -8,6 +8,11 @@
 
 # Tech Stack
 # Backend: Flask, OpenAI 
+# Frontend: vite + React, Tailwind
 
-# Frontend 
-# vite + React, Tailwind
+# Running the backend:
+# cd into the backend directory
+# python -m venv venv
+# mac: source venv/bin/activate 
+# windows: venv\Scripts\activate 
+# pip install requirements.txt 
