@@ -33,6 +33,7 @@ def transcribe_audio(audio_file_path):
 # using the transcript from transcribe_audio, use gpt to return a JSON of the structured doctor's notes
 # input: string of the transcript 
 # output: JSON formatted text   
+# user_prompt: prompts the data to return as an array while all the other fields are strings 
 def extract_data(transcript):
     system_prompt = """ 
     You are a medical documentation assistant. Extract structured information from doctor-patient conversation transcripts.
@@ -80,7 +81,7 @@ def extract_data(transcript):
             temperature=0.3
         )
 
-        extracted_data = json.loads(respose.choices[0].message.content)
+        extracted_data = json.loads(response.choices[0].message.content)
         return extracted_data
 
     except Exception as e:
@@ -91,6 +92,14 @@ def extract_data(transcript):
 
 @app.route('/process-audio', methods=['POST'])
 def process_audio():
+    if 'audio' not in request.files:
+        return jsonify({"error": "No audio file provided"}), 400
+    
+    file = request.files['audio']
+
+    if file.filename == '':
+        return jsonify({"error": "No file selected"}), 400
+
     try: 
         filename = secure_filename(file.filename)
         filepath = os.path.join(upload_folder, filename)
