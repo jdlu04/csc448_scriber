@@ -19,3 +19,8 @@
 # mac: source venv/bin/activate 
 # windows: venv\Scripts\activate 
 # pip install -r requirements.txt 
+# python app.py
+
+# Running the frontend:
+# npm install
+# npm run dev
