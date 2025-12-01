@@ -50,7 +50,8 @@ def extract_data(transcript):
     - radiation: Does the chief complaint move or stay in one location?
     - temporal_factor: is the chief complaint worse (or better) at a certain time of the day? 
     - severity: using a scale of 1 to 10, 1 being the least, 10 being the worst, how does the patient rate the chief complaint? 
-    - history: breif description of medical, surgical, family, or social history 
+    - history: brief description of medical, surgical, family, or social history 
+    - medications_allergies: list medications currently taken and any allergies
     - assessment: description of problems and differential dignosis (i.e.  Problem 1, Differential Diagnoses, Discussion, Plan for problem 1 (described in the plan below). Repeat for additional problems)
     - plan: details the need for additional testing and consultation with other clinicians to address the patient's illnesses. It also addresses any additional steps being taken to treat the patient. This section helps future physicians understand what needs to be done next.
     
