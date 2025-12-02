@@ -202,8 +202,10 @@ function App() {
             Vital Signs:
           </p>
           <textarea
-            className='w-11/12 h-8 resize-none border rounded border-gray-400 border rounded border-gray-400'
+            className='w-11/12 h-8 resize-none border rounded border-gray-400'
             type='text'
+            value={notes.vital_signs}
+            onChange={(e) => handleFieldChange('vital_signs', e.target.value)}
           />
         </div>
         <div className=''>
@@ -211,8 +213,10 @@ function App() {
             Physical Exam Findings:
           </p>
           <textarea
-            className='w-11/12 h-8 resize-none border rounded border-gray-400 border rounded border-gray-400'
+            className='w-11/12 h-8 resize-none border rounded border-gray-400'
             type='text'
+            value={notes.physical_exam}
+            onChange={(e) => handleFieldChange('physical_exam', e.target.value)}
           />
         </div>
         <div className=''>
@@ -220,8 +224,10 @@ function App() {
             Laboratory Data:
           </p>
           <textarea
-            className='w-11/12 h-8 resize-none border rounded border-gray-400 border rounded border-gray-400'
+            className='w-11/12 h-8 resize-none border rounded border-gray-400'
             type='text'
+            value={notes.laboratory}
+            onChange={(e) => handleFieldChange('laboratory', e.target.value)}
           />
         </div>
         <div className=''>
@@ -229,8 +235,10 @@ function App() {
             Imaging Results:
           </p>
           <textarea
-            className='w-11/12 h-8 resize-none border rounded border-gray-400 border rounded border-gray-400'
+            className='w-11/12 h-8 resize-none border rounded border-gray-400'
             type='text'
+            value={notes.imaging_results}
+            onChange={(e) => handleFieldChange('imaging_results', e.target.value)}
           />
         </div>
         <div className=''>
@@ -238,8 +246,10 @@ function App() {
             Other Diagnostic Data:
           </p>
           <textarea
-            className='w-11/12 h-8 resize-none border rounded border-gray-400 border rounded border-gray-400'
+            className='w-11/12 h-8 resize-none border rounded border-gray-400'
             type='text'
+            value={notes.other_diagnostic_data}
+            onChange={(e) => handleFieldChange('chief_complaint', e.target.value)}
           />
         </div>
         <div className=''>
@@ -247,8 +257,10 @@ function App() {
             Recognition and Review of the Documentation of Other Clinicians:
           </p>
           <textarea
-            className='w-11/12 h-8 resize-none border rounded border-gray-400 border rounded border-gray-400'
+            className='w-11/12 h-8 resize-none border rounded border-gray-400'
             type='text'
+            value={notes.review}
+            onChange={(e) => handleFieldChange('review', e.target.value)}
           />
         </div>
 

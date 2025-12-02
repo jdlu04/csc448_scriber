@@ -52,6 +52,12 @@ def extract_data(transcript):
     - severity: using a scale of 1 to 10, 1 being the least, 10 being the worst, how does the patient rate the chief complaint? 
     - history: brief description of medical, surgical, family, or social history 
     - medications_allergies: list medications currently taken and any allergies
+    - vital_signs: objective data from the patient encounter about their vital signs mentioned by the doctor
+    - physical_exam: objective data from the patient encounter about their physical exam results mentioned by the doctor
+    - laboratory: objective data from the patient encounter about their lab results mentioned by the doctor
+    - imaging_results: objective data from the patient encounter about their imaging results mentioned by the doctor
+    - other_diagnostic_data: objective data from the patient encounter about their other diagnostic data results mentioned by the doctor
+    - review: Recognition and review of the documentation of other clinicians.
     - assessment: description of problems and differential dignosis (i.e.  Problem 1, Differential Diagnoses, Discussion, Plan for problem 1 (described in the plan below). Repeat for additional problems)
     - plan: details the need for additional testing and consultation with other clinicians to address the patient's illnesses. It also addresses any additional steps being taken to treat the patient. This section helps future physicians understand what needs to be done next.
     
