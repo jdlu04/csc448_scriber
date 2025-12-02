@@ -4,8 +4,8 @@ import axios from 'axios';
 import Accordion from '@mui/material/Accordion';
 import AccordionSummary from '@mui/material/AccordionSummary';
 import AccordionDetails from '@mui/material/AccordionDetails';
-import Typography from '@mui/material/Typography';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import CircularProgress from '@mui/material/CircularProgress';
 
 function App() {
   const [selectedFile, setSelectedFile] = useState(null);
@@ -249,7 +249,7 @@ function App() {
             className='w-11/12 h-8 resize-none border rounded border-gray-400'
             type='text'
             value={notes.other_diagnostic_data}
-            onChange={(e) => handleFieldChange('chief_complaint', e.target.value)}
+            onChange={(e) => handleFieldChange('other_diagnostic_data', e.target.value)}
           />
         </div>
         <div className=''>
@@ -306,9 +306,9 @@ function App() {
 
   return (
     <div className='w-fill flex flex-col min-h-screen bg-[#6096BA] p-8'>
-      <h className=' text-3xl text-[#E7ECEF] font-semibold'>
+      <div className=' text-3xl text-[#E7ECEF] font-semibold'>
         Scriber
-      </h>
+      </div>
       <p className='bg-[#E7ECEF] p-4 rounded-lg my-4 text-'>
         Click "Choose File" to import your audio file into the system to begin the process. Once a file has been selected, click "Process Audio" to transcribe and generate the structured notes. Once processed, click through the Accordion to view and to edit the following information on the left. To reference the transcript, scroll through the section on the right.
       </p>
@@ -388,30 +388,36 @@ function App() {
             )}
           </div>
         ) : (
-          <p className='font-semibold'>
-            <form onSubmit={handleSubmit}>
+          <div className='font-semibold'>
+            <form onSubmit={handleSubmit} className='flex flex-col'>
               <input
                 id='audio-upload'
                 type='file'
                 accept='.mp3'
                 onChange={handleFileChange}
-                className='bg-blue-50'
+                className='w-75 rounded file:bg-gray-300 file:p-2 file:rounded border-gray-400 border'
               />
               <button
                 type='submit'
                 disabled={!selectedFile || loading}
-                className='bg-amber-200'
+                className='bg-blue-900 w-60 text-gray-100 content center rounded py-2 my-2 in-disabled:bg-blue-200'
               >
                 {loading ? (
                   <div>
-                    Processing Recording... (30-60 Seconds)
-                  </div>
+                      <CircularProgress size='14px' className='mr-2'/>
+                      Processing Recording
+                    </div>
                 ) : (
-                  'Process Recording'
+                  <div>
+                    <p>
+                      Process Recording
+                    </p>
+
+                  </div>
                 )}
               </button>
             </form>
-          </p>
+          </div>
         )}
       </div>
     </div>
