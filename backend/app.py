@@ -71,11 +71,12 @@ def extract_data(transcript):
     user_prompt = f"""
     Extract all medical documentation from this transcript: {transcript}
     Return structured JSON data of a structured dialouge between the patient and the doctor 
-    (
+    as for returning the dialouge, make sure you always return it as an array
+    [
     Doctor: "...", 
     Patient: "...", 
     Doctor: "...",
-    )"""
+    ]"""
 
     try: 
         response = client.chat.completions.create(

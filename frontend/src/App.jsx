@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import './App.css'
 import axios from 'axios';
 import Accordion from '@mui/material/Accordion';
@@ -12,6 +12,86 @@ function App() {
   const [loading, setLoading] = useState(false);
   const [transcript, setTranscript] = useState('');
   const [notes, setNotes] = useState(null);
+  const [isRecording, setIsRecording] = useState(false)
+
+  const mediaRecorderRef = useRef(null);
+  const audioChunksRef = useRef([]);
+
+  const startRecording = async () => {
+    try {
+
+      const stream = await navigator.mediaDevices.getUserMedia({
+        audio: true
+      });
+
+      const mediaRecorder = new MediaRecorder(stream);
+      mediaRecorderRef.current = mediaRecorder;
+      audioChunksRef.current = [];
+
+      mediaRecorder.ondataavailable = (event) => {
+        if (event.data.size > 0) {
+          audioChunksRef.current.push(event.data);
+        }
+      };
+
+      mediaRecorder.onstop = () => {
+        const audioBlob = new Blob(audioChunksRef.current, {
+          type: 'audio/wav'
+        });
+
+        stream.getTracks().forEach(track => track.stop());
+
+        processRecordedAudio(audioBlob);
+      };
+
+      mediaRecorder.start();
+      setIsRecording(true);
+      console.log('Recording started...');
+
+    } catch (err) {
+      console.error('Error accessing microphone:', err);
+    }
+  };
+
+  const stopRecording = () => {
+    if (mediaRecorderRef.current && isRecording) {
+      mediaRecorderRef.current.stop();
+      setIsRecording(false);
+      console.log('Recording stopped');
+    }
+  };
+
+  const processRecordedAudio = async (audioBlob) => {
+    setLoading(true);
+
+    try {
+
+      const formData = new FormData();
+      formData.append('audio', audioBlob, 'recording.wav');
+
+      console.log('Sending recorded audio to backend...');
+
+      const response = await axios.post(
+        'http://localhost:5000/process-audio',
+        formData,
+        {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+          timeout: 120000,
+        }
+      );
+
+      setTranscript(response.data.transcript);
+      setNotes(response.data.notes);
+      console.log('Audio processed successfully!');
+
+    } catch (err) {
+      console.error('Error processing recorded audio:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleFileChange = (event) => {
     const file = event.target.files[0];
@@ -38,10 +118,6 @@ function App() {
 
     } catch (err) {
       console.error('Error prrocessing audio:', err);
-      setError(
-        err.response?.data?.error ||
-        'Failed to process audio'
-      );
 
     } finally {
       setLoading(false);
@@ -309,6 +385,7 @@ function App() {
       <div className=' text-3xl text-[#E7ECEF] font-semibold'>
         Scriber
       </div>
+
       <p className='bg-[#E7ECEF] p-4 rounded-lg my-4 text-'>
         Click "Choose File" to import your audio file into the system to begin the process. Once a file has been selected, click "Process Audio" to transcribe and generate the structured notes. Once processed, click through the Accordion to view and to edit the following information on the left. To reference the transcript, scroll through the section on the right.
       </p>
@@ -388,35 +465,68 @@ function App() {
             )}
           </div>
         ) : (
-          <div className='font-semibold'>
-            <form onSubmit={handleSubmit} className='flex flex-col'>
-              <input
-                id='audio-upload'
-                type='file'
-                accept='.mp3'
-                onChange={handleFileChange}
-                className='w-75 rounded file:bg-gray-300 file:p-2 file:rounded border-gray-400 border'
-              />
-              <button
-                type='submit'
-                disabled={!selectedFile || loading}
-                className='bg-blue-900 w-60 text-gray-100 content center rounded py-2 my-2 in-disabled:bg-blue-200'
-              >
-                {loading ? (
-                  <div>
-                      <CircularProgress size='14px' className='mr-2'/>
+          <div className='flex flex-row'>
+            <div className='font-semibold w-1/2 border-r border-gray-400'>
+              <text className='text-lg'>
+                Upload File
+              </text>
+              <form onSubmit={handleSubmit} className='flex flex-col'>
+                <input
+                  id='audio-upload'
+                  type='file'
+                  accept='.mp3'
+                  onChange={handleFileChange}
+                  className='w-75 rounded file:bg-gray-300 file:p-2 file:rounded border-gray-400 border'
+                />
+                <button
+                  type='submit'
+                  disabled={!selectedFile || loading}
+                  className='bg-blue-900 w-60 text-gray-100 content center rounded py-2 my-2 in-disabled:bg-blue-200'
+                >
+                  {loading ? (
+                    <div>
+                      <CircularProgress size='14px' className='mr-2' />
                       Processing Recording
                     </div>
-                ) : (
-                  <div>
-                    <p>
-                      Process Recording
-                    </p>
+                  ) : (
+                    <div>
+                      <p>
+                        Process Recording
+                      </p>
 
-                  </div>
+                    </div>
+                  )}
+                </button>
+              </form>
+            </div>
+            <div className='bg-[#E7ECEF] px-4 rounded-lg w-1/2'>
+              <div className='text-lg font-semibold '>
+                Record Conversation
+                
+              </div>
+              <div className='flex gap-4'>
+                <button
+                  onClick={startRecording}
+                  disabled={isRecording || loading}
+                  className='flex items-center gap-2 bg-blue-900 disabled:bg-gray-400 text-white px-4 py-2 rounded font-semibold'
+                >
+                  {isRecording ? 'Recording...' : 'Start Recording'}
+                </button>
+                <button
+                  onClick={stopRecording}
+                  disabled={!isRecording}
+                  className='flex items-center gap-2 bg-gray-700 hover:bg-gray-800 disabled:bg-gray-400 text-white px-4 py-2 rounded font-semibold'
+                >
+
+                  Stop Recording
+                </button>
+              </div>
+              {isRecording && (
+                  <span className='text-red-600 font-semibold animate-pulse'>
+                    Recording in progress...
+                  </span>
                 )}
-              </button>
-            </form>
+            </div>
           </div>
         )}
       </div>
